@@ -1,4 +1,4 @@
-package cs5250_project10and11;
+package cs5250_project10and11_nand2tetris;
 
 import java.io.*;
 import java.util.*;
@@ -44,43 +44,32 @@ public class Tokenizer {
         );
     
     public Tokenizer(File inputFile) throws IOException {
-        tokens = new ArrayList<>();
-        StringBuilder cleaned = new StringBuilder();	// Mutable version of String
-        
+    	tokens = new ArrayList<>();
+        StringBuilder rawCode = new StringBuilder();
+
         try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
             String line;
-            boolean inBlockComment = false;
-            
             while ((line = reader.readLine()) != null) {
-                line = line.strip();
-                
-                // Block comment start
-                if (line.startsWith("/*") || line.startsWith("/**")) {
-                    inBlockComment = true;
-                    continue;
-                }
-                if (inBlockComment) {
-                    if (line.endsWith("*/")) inBlockComment = false;
-                    continue;
-                }
-                
-                // Single-line comment
-                if (line.startsWith("//")) continue;
-                int commentIndex = line.indexOf("//");
-                if (commentIndex != -1) {
-                    line = line.substring(0, commentIndex);
-                }
-                
-                cleaned.append(line).append(" ");
+                rawCode.append(line).append("\n");
             }
-            
-            reader.close();
         }
-        
-        Matcher matcher = tokenPattern.matcher(cleaned.toString());
+
+        // Remove all comments from the code
+        String cleaned = removeComments(rawCode.toString());
+
+        // Match and store all valid tokens
+        Matcher matcher = tokenPattern.matcher(cleaned);
         while (matcher.find()) {
-            tokens.add(matcher.group());
+            String token = matcher.group();
+            tokens.add(token);
         }
+    }
+
+    // Remove all line and block comments using regex
+    private static String removeComments(String input) {
+        return input.replaceAll("//.*", "")
+                    .replaceAll("/\\*.*?\\*/", "")          // inline block
+                    .replaceAll("/\\*([\\s\\S]*?)\\*/", ""); // multiline block
     }
 
     public boolean hasMoreTokens() {
@@ -88,13 +77,18 @@ public class Tokenizer {
     }
 
     public void advance() {
-        if (hasMoreTokens()) {
+    	if (hasMoreTokens()) {
             currentIndex++;
             currentToken = tokens.get(currentIndex);
+        } else {
+            currentToken = null;
         }
     }
 
     public String tokenType() {
+        if (currentToken == null) 
+        	return "NULL";
+
         if (keywords.contains(currentToken)) 
         	return "KEYWORD";
         else if (currentToken.length() == 1 && symbols.contains(currentToken.charAt(0))) 
@@ -151,5 +145,53 @@ public class Tokenizer {
     // This is used for single character symbols.
     public boolean symbolIs(char c) {
         return currentToken.length() == 1 && currentToken.charAt(0) == c;
+    }
+    
+    // Exporting XML file for Tokenizers
+    public static void exportTokensToXml(File inputFile, File outputFile) {
+        try {
+            Tokenizer tokenizer = new Tokenizer(inputFile);
+            PrintWriter writer = new PrintWriter(outputFile);
+            writer.println("<tokens>");
+
+            while (tokenizer.hasMoreTokens()) {
+                tokenizer.advance();
+                String type = tokenizer.tokenType();
+                String value;
+
+                if (type.equals("KEYWORD")) {
+                    value = tokenizer.keyWord();
+                    writer.printf("<keyword> %s </keyword>%n", escapeXml(value));
+                } else if (type.equals("SYMBOL")) {
+                    value = String.valueOf(tokenizer.symbol());
+                    writer.printf("<symbol> %s </symbol>%n", escapeXml(value));
+                } else if (type.equals("INT_CONST")) {
+                    value = String.valueOf(tokenizer.intVal());
+                    writer.printf("<integerConstant> %s </integerConstant>%n", value);
+                } else if (type.equals("STRING_CONST")) {
+                    value = tokenizer.stringVal();
+                    writer.printf("<stringConstant> %s </stringConstant>%n", value);
+                } else if (type.equals("IDENTIFIER")) {
+                    value = tokenizer.identifier();
+                    writer.printf("<identifier> %s </identifier>%n", value);
+                }
+            }
+
+            writer.println("</tokens>");
+            writer.close();
+            System.out.println("Token output written to: " + outputFile.getAbsolutePath());
+
+        } catch (IOException e) {
+            System.err.println("Failed to export tokens: " + e.getMessage());
+        }
+    }
+
+    private static String escapeXml(String input) {
+        return input.replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+                    .replace("\"", "&quot;")
+        			.replace("\'", "&apos;");
+
     }
 }

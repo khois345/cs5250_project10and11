@@ -1,5 +1,4 @@
-package cs5250_project10and11;
-
+package cs5250_project10and11_nand2tetris;
 import java.io.*;
 
 // Code Generation & Syntax Analysis
@@ -308,5 +307,4 @@ public class Parser {
         }
         return input;
     }
-
 }

@@ -1,1 +1,7 @@
 /TokenizerOutputWriter.class
+/CompiloationEngine.class
+/CompilationEngine.class
+/VMWriter.class
+/SymbolTable.class
+/SymbolTable$Symbol.class
+/SymbolTable$SymbolKind.class

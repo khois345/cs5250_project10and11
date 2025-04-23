@@ -49,15 +49,22 @@ public class Main {
 
             for (File jack : jackFiles) {
                 try {
-                	String tokenXmlName = jack.getName().replace(".jack", "T.xml");
-                	File tokenOutput = new File(jack.getParentFile(), tokenXmlName);
-                	Tokenizer.exportTokensToXml(jack, tokenOutput);
+                	// Project 10
+                	// String tokenXmlName = jack.getName().replace(".jack", "T.xml");
+                	// File tokenOutput = new File(jack.getParentFile(), tokenXmlName);
+                	// Tokenizer.exportTokensToXml(jack, tokenOutput);
 
-                    String outputName = jack.getName().replace(".jack", ".xml");
-                    File outputFile = new File(jack.getParentFile(), outputName);
-                    new Parser(jack, outputFile); // Parses and writes XML
-                    System.out.println("Saving XML to: " + outputFile.getAbsolutePath());
-                    System.out.println("Parsed: " + outputFile.getName());
+                    // String outputName = jack.getName().replace(".jack", ".xml");
+                    // File outputFile = new File(jack.getParentFile(), outputName);
+                    // new Parser(jack, outputFile); // Parses and writes XML
+                    // System.out.println("Saving XML to: " + outputFile.getAbsolutePath());
+                    // System.out.println("Parsed: " + outputFile.getName());
+                    
+                    // Project 11
+                    String vmName = jack.getName().replace(".jack", ".vm");
+                    File vmFile = new File(jack.getParentFile(), vmName);
+                    new CompilationEngine(jack, vmFile);
+                    System.out.println("Generated VM: " + vmFile.getAbsolutePath());
                 } catch (IOException e) {
                     System.err.println("Error parsing file: " + jack.getName());
                     e.printStackTrace();

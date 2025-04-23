@@ -1,6 +1,7 @@
 package cs5250_project10and11_nand2tetris;
 import java.io.*;
 
+// PROJECT 10 SESSION
 // Code Generation & Syntax Analysis
 // Ref: https://github.com/zhixiangli/nand2tetris/blob/main/projects/10/parser.py
 public class Parser {
